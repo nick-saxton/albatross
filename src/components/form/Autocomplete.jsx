@@ -17,7 +17,7 @@ const Autocomplete = ({ label, multiple, name, options }) => {
 
   return (
     <Field name={name}>
-      {({ field, form: { setFieldValue } }) => (
+      {({ field, form: { setFieldValue, setTouched, touched }, meta }) => (
         <div className="field">
           <label className="label" htmlFor={`${name}_input`}>
             {label}
@@ -32,10 +32,15 @@ const Autocomplete = ({ label, multiple, name, options }) => {
               <div className="dropdown-trigger">
                 <input
                   type="text"
-                  className="input"
+                  className={classNames('input', {
+                    'is-danger': meta.touched && meta.error
+                  })}
                   id={`${name}_input`}
                   value={inputValue}
-                  onBlur={() => setTimeout(() => setInputFocused(false), 10)}
+                  onBlur={() => {
+                    setTouched({ ...touched, [name]: true });
+                    setTimeout(() => setInputFocused(false), 10);
+                  }}
                   onChange={e => setInputValue(e.target.value)}
                   onFocus={() => setInputFocused(true)}
                 />
@@ -93,7 +98,7 @@ const Autocomplete = ({ label, multiple, name, options }) => {
                       ]);
                     }}
                   >
-                    <span className="tag is-link" key={selectedOption}>
+                    <span className="tag" key={selectedOption}>
                       {optionLabelsByValue[selectedOption]}
                     </span>
                     <a className="tag is-delete"></a>
@@ -102,6 +107,9 @@ const Autocomplete = ({ label, multiple, name, options }) => {
               ))}
             </div>
           </div>
+          {meta.touched && meta.error && (
+            <p className="help is-danger">{meta.error}</p>
+          )}
         </div>
       )}
     </Field>

@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
@@ -8,6 +9,8 @@ import rootReducer from './redux/reducers';
 import { authOperations } from './redux/auth';
 
 import App from './components/App';
+
+dotenv.config();
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(

@@ -1,15 +1,17 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/firestore';
 
 const config = {
-  apiKey: 'AIzaSyAQbRW7CoXQw_Fc8CV1vfDxMojY0hWDb80',
-  authDomain: 'albatross-724e2.firebaseapp.com',
-  databaseURL: 'https://albatross-724e2.firebaseio.com',
-  projectId: 'albatross-724e2',
-  storageBucket: 'albatross-724e2.appspot.com',
-  messagingSenderId: '686098972510',
-  appId: '1:686098972510:web:16ef059581669e848419cf',
-  measurementId: 'G-SWNWCGH4D3'
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_DB_URL,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_APP_ID,
+  measurementId: process.env.REACT_APP_MEASUREMENT_ID
 };
 
 export const fb = firebase.initializeApp(config);
+export const db = firebase.firestore();

@@ -1,6 +1,7 @@
-import { Formik } from 'formik';
+import { Formik, yupToFormErrors } from 'formik';
 import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
+import * as Yup from 'yup';
 
 import {
   tournamentOperations,
@@ -9,7 +10,32 @@ import {
 
 import Autocomplete from '../form/Autocomplete';
 import CheckboxField from '../form/CheckboxField';
+import DateField from '../form/DateField';
+import SelectField from '../form/SelectField';
 import TextField from '../form/TextField';
+
+const golfersPerTournamentOptions = [1, 2, 3, 4, 5].map(n => ({
+  label: n,
+  value: n
+}));
+
+const LeagueSchema = Yup.object().shape({
+  name: Yup.string()
+    .max(50, 'League name must be no longer than 50 characters')
+    .required('Required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters long')
+    .when('private', { is: true, then: Yup.string().required('Required') }),
+  tournaments: Yup.array()
+    .min(1, 'Must select at least one tournament')
+    .required('Required'),
+  paymentDueDate: Yup.date()
+    .when('paymentRequired', {
+      is: true,
+      then: Yup.date().required('Required')
+    })
+    .min(new Date(), 'Payment due date cannot be in the past')
+});
 
 const CreateLeague = ({ fetchTournaments, tournaments }) => {
   useEffect(() => {
@@ -44,12 +70,13 @@ const CreateLeague = ({ fetchTournaments, tournaments }) => {
               tournaments: [],
               golfersPerTournament: 3,
               paymentRequired: false,
-              paymentDueDate: null
+              paymentDueDate: ''
             }}
+            validationSchema={LeagueSchema}
             onSubmit={values => console.log(values)}
           >
-            {({ errors, values }) => (
-              <form>
+            {({ handleSubmit, isSubmitting, values }) => (
+              <form onSubmit={handleSubmit}>
                 <TextField label="League Name" name="name" type="text" />
                 <CheckboxField label="Private" name="private" />
                 {values.private && (
@@ -61,6 +88,29 @@ const CreateLeague = ({ fetchTournaments, tournaments }) => {
                   name="tournaments"
                   options={tournamentOptions}
                 />
+                <SelectField
+                  label="Golfers per tournament"
+                  name="golfersPerTournament"
+                  options={golfersPerTournamentOptions}
+                />
+                <CheckboxField
+                  label="Payment required"
+                  name="paymentRequired"
+                />
+                {values.paymentRequired && (
+                  <DateField label="Payment due date" name="paymentDueDate" />
+                )}
+                <div className="field">
+                  <div className="control">
+                    <button
+                      className="button is-link"
+                      disabled={isSubmitting}
+                      type="submit"
+                    >
+                      Create League
+                    </button>
+                  </div>
+                </div>
               </form>
             )}
           </Formik>
