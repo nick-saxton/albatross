@@ -1,19 +1,29 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-const LeagueCard = ({ id, isFirstLeague, league }) => (
+import { tournamentSelectors } from '../../redux/tournaments';
+
+const LeagueCard = ({ isFirstLeague, league, tournaments }) => (
   <div className="card">
     <div className="card-content">
-      <p className="subtitle">
-        {id
+      <p className="subtitle has-text-weight-bold">
+        {league
           ? league.name
           : isFirstLeague
           ? `You don't have any current leagues`
           : 'Add a league'}
       </p>
+      {league && <p className="has-text-weight-bold">Tournaments:</p>}
+      <ul>
+        {league &&
+          league.tournaments.map(tournament => (
+            <li key={tournament.id}>{tournaments[tournament].name}</li>
+          ))}
+      </ul>
     </div>
     <footer className="card-footer">
-      {id ? (
+      {league ? (
         <div className="card-footer-item">
           <button className="button is-link is-outlined">View League</button>
         </div>
@@ -33,4 +43,8 @@ const LeagueCard = ({ id, isFirstLeague, league }) => (
   </div>
 );
 
-export default LeagueCard;
+const mapStateToProps = state => ({
+  tournaments: tournamentSelectors.getTournaments(state)
+});
+
+export default connect(mapStateToProps)(LeagueCard);

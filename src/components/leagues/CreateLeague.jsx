@@ -1,8 +1,10 @@
-import { Formik, yupToFormErrors } from 'formik';
+import { Formik } from 'formik';
 import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import * as Yup from 'yup';
 
+import { leagueOperations } from '../../redux/leagues';
 import {
   tournamentOperations,
   tournamentSelectors
@@ -37,7 +39,9 @@ const LeagueSchema = Yup.object().shape({
     .min(new Date(), 'Payment due date cannot be in the past')
 });
 
-const CreateLeague = ({ fetchTournaments, tournaments }) => {
+const CreateLeague = ({ createLeague, fetchTournaments, tournaments }) => {
+  const history = useHistory();
+
   useEffect(() => {
     if (Object.keys(tournaments).length === 0) {
       fetchTournaments();
@@ -73,7 +77,10 @@ const CreateLeague = ({ fetchTournaments, tournaments }) => {
               paymentDueDate: ''
             }}
             validationSchema={LeagueSchema}
-            onSubmit={values => console.log(values)}
+            onSubmit={values => {
+              createLeague(values);
+              history.push('/');
+            }}
           >
             {({ handleSubmit, isSubmitting, values }) => (
               <form onSubmit={handleSubmit}>
@@ -125,6 +132,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = {
+  createLeague: leagueOperations.createLeague,
   fetchTournaments: tournamentOperations.fetchTournaments
 };
 

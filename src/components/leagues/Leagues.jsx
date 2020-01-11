@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
+import { leagueSelectors, leagueOperations } from '../../redux/leagues';
 import {
   tournamentOperations,
   tournamentSelectors
@@ -8,12 +9,16 @@ import {
 
 import LeagueCard from './LeagueCard';
 
-const Leagues = ({ fetchTournaments, tournaments }) => {
+const Leagues = ({ fetchLeagues, fetchTournaments, leagues, tournaments }) => {
   useEffect(() => {
     if (Object.keys(tournaments).length === 0) {
       fetchTournaments();
     }
-  }, [fetchTournaments, tournaments]);
+
+    if (Object.keys(leagues).length === 0) {
+      fetchLeagues();
+    }
+  }, []);
 
   return (
     <>
@@ -25,9 +30,14 @@ const Leagues = ({ fetchTournaments, tournaments }) => {
           </h2>
         </div>
       </div>
-      <div className="columns">
+      <div className="columns is-multiline">
+        {Object.values(leagues).map(league => (
+          <div className="column is-one-third" key={league.id}>
+            <LeagueCard league={league} />
+          </div>
+        ))}
         <div className="column is-one-third">
-          <LeagueCard isFirstLeague={true} />
+          <LeagueCard isFirstLeague={Object.keys(leagues).length === 0} />
         </div>
       </div>
     </>
@@ -35,10 +45,12 @@ const Leagues = ({ fetchTournaments, tournaments }) => {
 };
 
 const mapStateToProps = state => ({
+  leagues: leagueSelectors.getLeagues(state),
   tournaments: tournamentSelectors.getTournaments(state)
 });
 
 const mapDispatchToProps = {
+  fetchLeagues: leagueOperations.fetchLeagues,
   fetchTournaments: tournamentOperations.fetchTournaments
 };
 

@@ -5,4 +5,9 @@ const createLeagueSuccess = league => ({
   league
 });
 
-export { createLeagueSuccess };
+const initializeLeagues = leagues => ({
+  type: types.INITIALIZE_LEAGUES,
+  leagues
+});
+
+export { createLeagueSuccess, initializeLeagues };
