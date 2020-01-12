@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
+import { authSelectors } from '../../redux/auth';
 import { leagueSelectors, leagueOperations } from '../../redux/leagues';
 import {
   tournamentOperations,
@@ -9,7 +10,13 @@ import {
 
 import LeagueCard from './LeagueCard';
 
-const Leagues = ({ fetchLeagues, fetchTournaments, leagues, tournaments }) => {
+const Leagues = ({
+  fetchLeagues,
+  fetchTournaments,
+  leagues,
+  tournaments,
+  user
+}) => {
   useEffect(() => {
     if (Object.keys(tournaments).length === 0) {
       fetchTournaments();
@@ -33,7 +40,7 @@ const Leagues = ({ fetchLeagues, fetchTournaments, leagues, tournaments }) => {
       <div className="columns is-multiline">
         {Object.values(leagues).map(league => (
           <div className="column is-one-third" key={league.id}>
-            <LeagueCard league={league} />
+            <LeagueCard league={league} owner={league.owner === user.uid} />
           </div>
         ))}
         <div className="column is-one-third">
@@ -46,7 +53,8 @@ const Leagues = ({ fetchLeagues, fetchTournaments, leagues, tournaments }) => {
 
 const mapStateToProps = state => ({
   leagues: leagueSelectors.getLeagues(state),
-  tournaments: tournamentSelectors.getTournaments(state)
+  tournaments: tournamentSelectors.getTournaments(state),
+  user: authSelectors.getUser(state)
 });
 
 const mapDispatchToProps = {

@@ -4,12 +4,12 @@ import { Link } from 'react-router-dom';
 
 import { tournamentSelectors } from '../../redux/tournaments';
 
-const LeagueCard = ({ isFirstLeague, league, tournaments }) => (
+const LeagueCard = ({ isFirstLeague, league, owner, tournaments }) => (
   <div className="card">
     <div className="card-content">
       <p className="subtitle has-text-weight-bold">
         {league
-          ? league.name
+          ? `${league.name} ${owner ? '(Owner)' : ''}`
           : isFirstLeague
           ? `You don't have any current leagues`
           : 'Add a league'}
@@ -25,7 +25,12 @@ const LeagueCard = ({ isFirstLeague, league, tournaments }) => (
     <footer className="card-footer">
       {league ? (
         <div className="card-footer-item">
-          <button className="button is-link is-outlined">View League</button>
+          <Link
+            className="button is-link is-outlined"
+            to={`/league/${league.id}`}
+          >
+            View League
+          </Link>
         </div>
       ) : (
         <>
