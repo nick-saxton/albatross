@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 import { authOperations, authSelectors } from '../redux/auth';
 
 const Navbar = ({ isAuthenticated, logOut }) => (
-  <nav className="navbar">
+  <nav className="navbar is-black">
     <div className="container">
       <div className="navbar-brand">
-        <Link className="navbar-item has-text-link has-text-weight-bold" to="/">
+        <Link className="navbar-item has-text-weight-bold" to="/">
           Albatross
         </Link>
       </div>

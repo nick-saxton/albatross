@@ -73,7 +73,7 @@ const LogIn = ({ hasLoggedOut, logIn }) => {
             <div className="field">
               <div className="control">
                 <Link
-                  className="button is-success is-outlined is-fullwidth"
+                  className="button is-light is-fullwidth"
                   to="/signup"
                 >
                   Sign Up
