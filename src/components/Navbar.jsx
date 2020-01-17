@@ -17,7 +17,7 @@ const Navbar = ({ isAuthenticated, logOut }) => (
           <div className="navbar-start"></div>
           <div className="navbar-end">
             <div className="navbar-item">
-              <button className="button is-outlined is-small" onClick={logOut}>
+              <button className="button is-danger is-small" onClick={logOut}>
                 Log Out
               </button>
             </div>
