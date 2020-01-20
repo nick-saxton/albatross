@@ -14,7 +14,7 @@ const LogIn = ({ hasLoggedOut, logIn }) => {
 
   return (
     <CenteredHero>
-      {location.search.indexOf('registered') !== -1 && (
+      {location.state.fromRegister && (
         <article className="message is-success">
           <div className="message-body">
             Successfully registered! You may now log in.
@@ -73,7 +73,7 @@ const LogIn = ({ hasLoggedOut, logIn }) => {
             <div className="field">
               <div className="control">
                 <Link
-                  className="button is-light is-fullwidth"
+                  className="button is-success is-fullwidth"
                   to="/signup"
                 >
                   Sign Up

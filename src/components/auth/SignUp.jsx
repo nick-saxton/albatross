@@ -56,7 +56,7 @@ const SignUp = ({ registerUser }) => {
         onSubmit={(values, { setErrors }) => {
           return registerUser(values)
             .then(() => {
-              history.push('/login?registered');
+              history.push('/login', { fromRegister: true });
             })
             .catch(error => {
               setErrors({
