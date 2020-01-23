@@ -1,120 +1,187 @@
 import classNames from 'classnames';
 import { Field } from 'formik';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 
 const Autocomplete = ({ label, multiple, name, options }) => {
-  const [inputValue, setInputValue] = useState('');
-  const [inputFocused, setInputFocused] = useState(false);
+  const [active, setActive] = useState(false);
+  const [activeOptionIndex, setActiveOptionIndex] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOptions, setSelectedOptions] = useState([]);
 
-  const optionLabelsByValue = useMemo(() => {
-    return options.reduce((byValue, option) => {
-      byValue[option.value] = option.label;
-      return byValue;
-    }, {});
-  }, [options]);
+  const inputRef = useRef(null);
 
-  const isActive = inputValue || inputFocused;
+  const availableOptions = useMemo(() => {
+    return options
+      .filter(option => {
+        return (
+          selectedOptions.findIndex(selectedOption => {
+            return selectedOption.value === option.value;
+          }) === -1
+        );
+      })
+      .filter(option => {
+        return (
+          option.label.toLowerCase().indexOf(searchTerm.toLowerCase()) >= 0
+        );
+      });
+  }, [options, searchTerm, selectedOptions]);
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      setActive(false);
+      setActiveOptionIndex(0);
+    }, 50);
+  };
+
+  const handleChange = event => {
+    setSearchTerm(event.target.value);
+    setActiveOptionIndex(0);
+    setActive(true);
+  };
+
+  const handleDelete = value => {
+    setSelectedOptions(
+      selectedOptions.filter(option => option.value !== value)
+    );
+  };
+
+  const handleKeyDown = event => {
+    switch (event.keyCode) {
+      case 13: // Enter
+        setSelectedOptions([
+          ...selectedOptions,
+          availableOptions[activeOptionIndex]
+        ]);
+        setActiveOptionIndex(0);
+        setSearchTerm('');
+        break;
+
+      case 27: // Escape
+        setActive(false);
+        setSearchTerm('');
+        break;
+
+      case 38: // Up arrow
+        if (activeOptionIndex > 0) {
+          setActiveOptionIndex(activeOptionIndex - 1);
+        }
+        break;
+
+      case 40: // Down arrow
+        if (!active) {
+          setActive(true);
+        } else if (activeOptionIndex < availableOptions.length - 1) {
+          setActiveOptionIndex(activeOptionIndex + 1);
+        }
+        break;
+
+      default:
+        break;
+    }
+  };
 
   return (
     <Field name={name}>
       {({ field, form: { setFieldValue, setTouched, touched }, meta }) => (
-        <div className="field">
-          <label className="label" htmlFor={`${name}_input`}>
-            {label}
-          </label>
-          <div className="control" style={{ display: 'flex' }}>
-            <div
-              className={classNames('dropdown', {
-                'is-active': isActive
-              })}
-              style={{ marginRight: '10px' }}
-            >
-              <div className="dropdown-trigger">
-                <input
-                  type="text"
-                  className={classNames('input', {
-                    'is-danger': meta.touched && meta.error
-                  })}
-                  id={`${name}_input`}
-                  value={inputValue}
-                  onBlur={() => {
-                    setTouched({ ...touched, [name]: true });
-                    setTimeout(() => setInputFocused(false), 10);
-                  }}
-                  onChange={e => setInputValue(e.target.value)}
-                  onFocus={() => setInputFocused(true)}
-                />
-                <select
-                  multiple={multiple}
-                  style={{ display: 'none' }}
-                  {...field}
-                />
-              </div>
-              <div className="dropdown-menu">
-                <div
-                  className="dropdown-content"
-                  style={{ maxHeight: '220px', overflowY: 'auto' }}
-                >
-                  {options
-                    .filter(option => {
-                      return (
-                        (inputValue.length === 0 ||
-                          option.label
-                            .toLowerCase()
-                            .indexOf(inputValue.toLowerCase()) !== -1) &&
-                        field.value.indexOf(option.value) === -1
-                      );
-                    })
-                    .map(option => (
-                      <a
-                        className="dropdown-item"
-                        key={option.value}
-                        onClick={() => {
-                          setFieldValue('tournaments', [
-                            ...field.value,
-                            option.value
-                          ]);
-                        }}
-                      >
-                        {option.label}
-                      </a>
-                    ))}
+        <>
+          <div className="field">
+            {label && <label className="label">{label}</label>}
+            <div className="control">
+              <div
+                className={classNames('dropdown', { 'is-active': active })}
+                style={{ width: '100%' }}
+              >
+                <div className="dropdown-trigger" style={{ width: '100%' }}>
+                  <input
+                    className="input"
+                    ref={inputRef}
+                    type="text"
+                    value={searchTerm}
+                    onBlur={() => {
+                      handleBlur();
+                      setTouched({ ...touched, [name]: true });
+                    }}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => setActive(true)}
+                  />
+                  <select
+                    className="is-hidden"
+                    multiple={multiple}
+                    value={selectedOptions.map(option => option.value)}
+                    {...field}
+                  />
+                </div>
+                <div className="dropdown-menu">
+                  {availableOptions.length > 0 && (
+                    <div
+                      className="dropdown-content"
+                      style={{
+                        maxHeight: '225px',
+                        overflow: 'auto'
+                      }}
+                    >
+                      {availableOptions.map((option, index) => (
+                        <a
+                          className={classNames('dropdown-item', {
+                            'is-active': index === activeOptionIndex
+                          })}
+                          key={index}
+                          onClick={() => {
+                            setSelectedOptions([...selectedOptions, option]);
+                            setFieldValue('tournaments', [
+                              ...field.value,
+                              option.value
+                            ]);
+                          }}
+                        >
+                          {option.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
+          </div>
+          {multiple && selectedOptions.length > 0 && (
             <div
               className="field is-grouped is-grouped-multiline"
-              style={{ alignItems: 'center', maxWidth: '50%' }}
+              style={{
+                width: `${inputRef.current.clientWidth}px`
+              }}
             >
-              {field.value.map(selectedOption => (
-                <div className="control" key={selectedOption}>
-                  <div
-                    className="tags has-addons"
-                    onClick={() => {
-                      const indexToRemove = field.value.indexOf(selectedOption);
+              {selectedOptions
+                .sort((a, b) => a.label.localeCompare(b.label))
+                .map(option => (
+                  <Tag
+                    text={option.label}
+                    onDelete={() => {
+                      handleDelete(option.value);
+                      const indexToRemove = field.value.indexOf(option.value);
                       setFieldValue('tournaments', [
                         ...field.value.slice(0, indexToRemove),
                         ...field.value.slice(indexToRemove + 1)
                       ]);
                     }}
-                  >
-                    <span className="tag" key={selectedOption}>
-                      {optionLabelsByValue[selectedOption]}
-                    </span>
-                    <a className="tag is-delete"></a>
-                  </div>
-                </div>
-              ))}
+                  />
+                ))}
             </div>
-          </div>
-          {meta.touched && meta.error && (
-            <p className="help is-danger">{meta.error}</p>
           )}
-        </div>
+        </>
       )}
     </Field>
   );
 };
+
+const Tag = ({ text, onDelete }) => (
+  <div className="control">
+    <div className="tags has-addons">
+      <span className="tag is-link">{text}</span>
+      <a className="tag is-delete" onClick={onDelete} />
+    </div>
+  </div>
+);
 
 Autocomplete.defaultProps = {
   options: []

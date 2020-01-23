@@ -7,13 +7,17 @@ import { tournamentSelectors } from '../../redux/tournaments';
 const LeagueCard = ({ isFirstLeague, league, owner, tournaments }) => (
   <div className="card">
     <div className="card-content">
-      <p className="subtitle has-text-weight-bold">
-        {league
-          ? `${league.name} ${owner ? '(Owner)' : ''}`
-          : isFirstLeague
-          ? `You don't have any current leagues`
-          : 'Add a league'}
-      </p>
+      {league ? (
+        <p className="subtitle has-text-weight-bold">
+          {league.name} {owner ? '(Owner)' : ''}
+        </p>
+      ) : (
+        <p className="has-text-weight-bold">
+          {isFirstLeague
+            ? `You don't have any current leagues`
+            : 'Add a league'}
+        </p>
+      )}
       {league && <p className="has-text-weight-bold">Tournaments:</p>}
       <ul>
         {league &&
