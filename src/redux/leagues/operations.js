@@ -1,6 +1,10 @@
 import { db } from '../../firebase';
 
-import { createLeagueSuccess, initializeLeagues } from './actions';
+import {
+  createLeagueSuccess,
+  initializeLeague,
+  initializeLeagues
+} from './actions';
 
 import { authSelectors } from '../auth';
 
@@ -32,6 +36,20 @@ const createLeague = formData => (dispatch, getState) => {
     .catch(error => console.log(error));
 };
 
+const fetchLeague = leagueID => dispatch => {
+  db.collection('leagues')
+    .doc(leagueID)
+    .get()
+    .then(doc => {
+      dispatch(
+        initializeLeague({
+          ...doc.data(),
+          id: leagueID
+        })
+      );
+    });
+};
+
 const fetchLeagues = () => dispatch => {
   db.collection('leagues')
     .get()
@@ -42,4 +60,4 @@ const fetchLeagues = () => dispatch => {
     });
 };
 
-export { createLeague, fetchLeagues };
+export { createLeague, fetchLeague, fetchLeagues };

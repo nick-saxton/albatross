@@ -88,7 +88,14 @@ const Autocomplete = ({ label, multiple, name, options }) => {
             {label && <label className="label">{label}</label>}
             <div className="control">
               <div
-                className={classNames('dropdown', { 'is-active': active })}
+                className={classNames('dropdown', {
+                  'is-active': active,
+                  'is-up':
+                    inputRef.current &&
+                    document.documentElement.clientHeight -
+                      inputRef.current.getBoundingClientRect().top <
+                      150
+                })}
                 style={{ width: '100%' }}
               >
                 <div className="dropdown-trigger" style={{ width: '100%' }}>
@@ -155,6 +162,7 @@ const Autocomplete = ({ label, multiple, name, options }) => {
                 .sort((a, b) => a.label.localeCompare(b.label))
                 .map(option => (
                   <Tag
+                    key={option.value}
                     text={option.label}
                     onDelete={() => {
                       handleDelete(option.value);
@@ -178,7 +186,11 @@ const Tag = ({ text, onDelete }) => (
   <div className="control">
     <div className="tags has-addons">
       <span className="tag is-link">{text}</span>
-      <a className="tag is-delete" onClick={onDelete} />
+      <button
+        className="tag is-delete"
+        onClick={onDelete}
+        style={{ border: 'none', cursor: 'pointer' }}
+      />
     </div>
   </div>
 );

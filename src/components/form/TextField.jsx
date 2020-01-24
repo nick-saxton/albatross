@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Field } from 'formik';
 import React from 'react';
 
-const TextField = ({ label, name, type, smallLabel }) => (
+const TextField = ({ label, name, type, smallLabel, ...otherProps }) => (
   <Field name={name}>
     {({ field, meta }) => (
       <div className="field">
@@ -20,6 +20,7 @@ const TextField = ({ label, name, type, smallLabel }) => (
             id={name}
             type={type}
             {...field}
+            {...otherProps}
           />
         </div>
         {meta.touched && meta.error && (

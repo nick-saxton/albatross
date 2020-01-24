@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
+import CreateEntry from './entries/CreateEntry';
 import CreateLeague from './leagues/CreateLeague';
 import League from './leagues/League';
 import Leagues from './leagues/Leagues';
@@ -16,6 +17,10 @@ const App = () => (
       <div className="container">
         <Switch>
           <ProtectedRoute component={CreateLeague} path="/league/new" />
+          <ProtectedRoute
+            component={CreateEntry}
+            path="/league/:leagueID/entry/new"
+          />
           <ProtectedRoute component={League} path="/league/:id" />
           <ProtectedRoute component={Leagues} exact path="/" />
           <Route component={LogIn} path="/login" />

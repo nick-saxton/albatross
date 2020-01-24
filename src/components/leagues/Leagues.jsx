@@ -18,14 +18,13 @@ const Leagues = ({
   user
 }) => {
   useEffect(() => {
+    // Only get the tournaments once since they should never change
     if (Object.keys(tournaments).length === 0) {
       fetchTournaments();
     }
 
-    if (Object.keys(leagues).length === 0) {
-      fetchLeagues();
-    }
-  }, []);
+    fetchLeagues();
+  }, [fetchLeagues, fetchTournaments, leagues, tournaments]);
 
   return (
     <>
