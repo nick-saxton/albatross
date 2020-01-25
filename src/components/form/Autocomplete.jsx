@@ -82,7 +82,7 @@ const Autocomplete = ({ label, multiple, name, options }) => {
 
   return (
     <Field name={name}>
-      {({ field, form: { setFieldValue, setTouched, touched }, meta }) => (
+      {({ field, form: { setFieldTouched, setFieldValue }, meta }) => (
         <>
           <div className="field">
             {label && <label className="label">{label}</label>}
@@ -100,13 +100,15 @@ const Autocomplete = ({ label, multiple, name, options }) => {
               >
                 <div className="dropdown-trigger" style={{ width: '100%' }}>
                   <input
-                    className="input"
+                    className={classNames('input', {
+                      'is-danger': meta.touched && meta.error
+                    })}
                     ref={inputRef}
                     type="text"
                     value={searchTerm}
                     onBlur={() => {
                       handleBlur();
-                      setTouched({ ...touched, [name]: true });
+                      setFieldTouched(name, true);
                     }}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
@@ -136,10 +138,7 @@ const Autocomplete = ({ label, multiple, name, options }) => {
                           key={index}
                           onClick={() => {
                             setSelectedOptions([...selectedOptions, option]);
-                            setFieldValue('tournaments', [
-                              ...field.value,
-                              option.value
-                            ]);
+                            setFieldValue(name, [...field.value, option.value]);
                           }}
                         >
                           {option.label}
@@ -150,6 +149,9 @@ const Autocomplete = ({ label, multiple, name, options }) => {
                 </div>
               </div>
             </div>
+            {meta.touched && meta.error && (
+              <p className="help is-danger">{meta.error}</p>
+            )}
           </div>
           {multiple && selectedOptions.length > 0 && (
             <div
@@ -167,7 +169,7 @@ const Autocomplete = ({ label, multiple, name, options }) => {
                     onDelete={() => {
                       handleDelete(option.value);
                       const indexToRemove = field.value.indexOf(option.value);
-                      setFieldValue('tournaments', [
+                      setFieldValue(name, [
                         ...field.value.slice(0, indexToRemove),
                         ...field.value.slice(indexToRemove + 1)
                       ]);

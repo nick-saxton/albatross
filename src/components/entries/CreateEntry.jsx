@@ -1,8 +1,11 @@
 import { Formik } from 'formik';
+import _ from 'lodash';
 import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
+import * as Yup from 'yup';
 
+import { entryOperations } from '../../redux/entries';
 import { golferOperations, golferSelectors } from '../../redux/golfers';
 import { leagueOperations, leagueSelectors } from '../../redux/leagues';
 import {
@@ -19,9 +22,12 @@ const CreateEntry = ({
   fetchTournaments,
   golfers,
   league,
+  saveEntry,
   tournaments
 }) => {
   const { leagueID } = useParams();
+
+  const history = useHistory();
 
   useEffect(() => {
     fetchLeague(leagueID);
@@ -37,6 +43,31 @@ const CreateEntry = ({
       }))
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [golfers]);
+
+  const EntrySchema = useMemo(
+    () =>
+      Yup.object().shape({
+        name: Yup.string()
+          .max(50, 'Entry name must be no longer than 50 characters')
+          .required('Required'),
+        picks: Yup.lazy(obj =>
+          Yup.object().shape(
+            _.mapValues(obj, () => {
+              return Yup.array()
+                .min(
+                  league.golfersPerTournament,
+                  `You must select exactly ${league.golfersPerTournament} golfers for this tournament`
+                )
+                .max(
+                  league.golfersPerTournament,
+                  `You must select exactly ${league.golfersPerTournament} golfers for this tournament`
+                );
+            })
+          )
+        )
+      }),
+    [league]
+  );
 
   const leagueTournaments = useMemo(() => {
     return league
@@ -62,12 +93,16 @@ const CreateEntry = ({
               initialValues={{
                 name: '',
                 picks: league.tournaments.reduce((prev, curr) => {
-                  return { ...prev, [curr]: [] };
+                  return { ...prev, [`t_${curr}`]: [] };
                 }, {})
               }}
-              onSubmit={values => {}}
+              validationSchema={EntrySchema}
+              onSubmit={values => {
+                saveEntry(values, league.id);
+                history.push(`league/${league.id}`);
+              }}
             >
-              {({ handleSubmit, isSubmitting, values }) => (
+              {({ errors, handleSubmit, isSubmitting, values }) => (
                 <form onSubmit={handleSubmit}>
                   <TextField
                     label="Entry Name"
@@ -76,16 +111,19 @@ const CreateEntry = ({
                     type="text"
                   />
                   <h2 className="title is-5">
-                    Tournament Picks (
-                    {`Pick ${league.golfersPerTournament} golfers per tournament`}
-                    )
+                    Tournament Picks&nbsp;
+                    <span className="has-text-weight-normal">
+                      (
+                      {`Pick ${league.golfersPerTournament} golfers per tournament`}
+                      )
+                    </span>
                   </h2>
                   {leagueTournaments.map(tournament => (
                     <Autocomplete
                       key={tournament}
                       label={tournaments[tournament].name}
                       multiple={true}
-                      name={`picks[${tournament}]`}
+                      name={`picks.t_${tournament}`}
                       options={golferOptions}
                     />
                   ))}
@@ -119,7 +157,8 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {
   fetchGolfers: golferOperations.fetchGolfers,
   fetchLeague: leagueOperations.fetchLeague,
-  fetchTournaments: tournamentOperations.fetchTournaments
+  fetchTournaments: tournamentOperations.fetchTournaments,
+  saveEntry: entryOperations.saveEntry
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreateEntry);
