@@ -5,6 +5,12 @@ const entryReducer = (state = {}, action) => {
     case types.ADD_ENTRIES:
       return action.entries;
 
+    case types.ADD_ENTRY:
+      return {
+        ...state,
+        [action.entry.id]: action.entry
+      };
+
     default:
       return state;
   }

@@ -42,9 +42,12 @@ const League = ({ entries, fetchEntries, fetchLeague, league, user }) => {
                         <tr key={entry.id}>
                           <td>{entry.name}</td>
                           <td className="has-text-right">
-                            <button className="button is-link is-small">
+                            <Link
+                              className="button is-link is-small"
+                              to={`/league/${id}/entry/${entry.id}`}
+                            >
                               Modify
-                            </button>
+                            </Link>
                           </td>
                         </tr>
                       ))}

@@ -17,6 +17,15 @@ const getEntries = leagueID => dispatch => {
     });
 };
 
+const getEntry = entryID => dispatch => {
+  db.collection('entries')
+    .doc(entryID)
+    .get()
+    .then(doc => {
+      dispatch(addEntry({ ...doc.data(), id: entryID }));
+    });
+};
+
 const saveEntry = (entry, leagueID) => (dispatch, getState) => {
   db.collection('entries')
     .add({
@@ -38,4 +47,4 @@ const saveEntry = (entry, leagueID) => (dispatch, getState) => {
     .catch(error => console.log(error));
 };
 
-export { getEntries, saveEntry };
+export { getEntries, getEntry, saveEntry };
